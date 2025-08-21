@@ -4,14 +4,17 @@ require "lib.sprite"
 require "lib.sprite_sheet"
 require "lib.anchor"
 require "lib.controller"
+require "lib.timer"
 
 require "globals"
+require "weapon"
 require "player"
 
 WIDTH, HEIGHT = 160, 120
 
 local camera = nil
 local background = nil
+local frame = nil
 local player = nil
 
 function love.load()
@@ -19,11 +22,13 @@ function love.load()
 
   camera = Camera:new(WIDTH, HEIGHT)
   background = Sprite:new("assets/background.png")
+  frame = Sprite:new("assets/frame.png")
   G.Controls = Controller:new({
     up = "w",
     down = "s",
     left = "a",
     right = "d",
+    fire = "space",
   })
 
   player = Player:new()
@@ -34,6 +39,7 @@ function love.draw()
 
   background:draw(0, 0)
   player:draw()
+  frame:draw(0, 0)
 
   camera:pop()
 end

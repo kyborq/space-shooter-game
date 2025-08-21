@@ -1,24 +1,34 @@
 Player = Class()
 
 function Player:init()
-  self.x = 80
-  self.y = 60
-  self.vx = 0
-  self.vy = 0
+  -- player params
   self.speed = 0
   self.maxSpeed = 1
   self.acceleration = 1.5
   self.deceleration = 0.5
+
+  -- object params
+  self.x = 80
+  self.y = 60
+
+  -- internal
+  self.vx = 0
+  self.vy = 0
   self.dx = 0
   self.dy = 0
+
+  -- misc
   self.sprite = Sprite:new("assets/player.png", 0.5)
+
+  -- modules
+  self.weapon = Weapon:new()
 end
 
 function Player:draw()
   self.sprite:draw(self.x, self.y)
 end
 
-function Player:update(dt)
+function Player:movement(dt)
   self.directionX = 0
   self.directionY = 0
 
@@ -52,6 +62,20 @@ function Player:update(dt)
 
   self.x = self.x + self.vx
   self.y = self.y + self.vy
+end
+
+function Player:shooting(dt)
+  if G.Controls:isActionPressed("fire") then
+    if self.weapon:tryFire() then
+      -- firing a bullet here
+    end
+  end
+end
+
+function Player:update(dt)
+  self:movement(dt)
+  self:shooting(dt)
+  self.weapon:update(dt)
 end
 
 function Player:checkCollision()
