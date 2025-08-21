@@ -23,6 +23,13 @@ function Player:init()
 
   -- modules
   self.weapon = Weapon:new(0.45)
+
+  -- recoil
+  self.recoilTimer = Timer:new()
+  self.recoilForce = 0.33
+  self.recoilDuration = 0.02
+  self.recoilVx = 0
+  self.recoilVy = 0
 end
 
 function Player:draw()
@@ -64,16 +71,34 @@ function Player:movement(dt)
     end
   end
 
+  self.recoilTimer:update(dt)
+  if not self.recoilTimer:isFinished() then
+    self.x = self.x + self.recoilVx
+    self.y = self.y + self.recoilVy
+
+    local decayFactor = dt / self.recoilDuration
+    self.recoilVx = self.recoilVx * (1 - decayFactor)
+    self.recoilVy = self.recoilVy * (1 - decayFactor)
+  else
+    self.recoilVx, self.recoilVy = 0, 0
+  end
+
   self.x = self.x + self.vx
   self.y = self.y + self.vy
+
+
 end
 
 function Player:shooting(dt)
   if G.Controls:isActionPressed("fire") then
     if self.weapon:tryFire() then
-      -- firing a bullet here
-      local bullet = Bullet:new(self.x, self.y - 2, -90)
+      local bullet = Bullet:new(self.x, self.y - 6, -90)
       table.insert(self.bullets, bullet)
+
+      local angle = math.rad(-90)
+      self.recoilVx = self.recoilVx - math.cos(angle) * self.recoilForce
+      self.recoilVy = self.recoilVy - math.sin(angle) * self.recoilForce
+      self.recoilTimer:reset(self.recoilDuration)
     end
   end
 end
