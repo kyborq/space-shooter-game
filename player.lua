@@ -19,12 +19,16 @@ function Player:init()
 
   -- misc
   self.sprite = Sprite:new("assets/player.png", 0.5)
+  self.bullets = {}
 
   -- modules
-  self.weapon = Weapon:new()
+  self.weapon = Weapon:new(0.45)
 end
 
 function Player:draw()
+  for _, bullet in pairs(self.bullets) do
+    bullet:draw()
+  end
   self.sprite:draw(self.x, self.y)
 end
 
@@ -68,6 +72,8 @@ function Player:shooting(dt)
   if G.Controls:isActionPressed("fire") then
     if self.weapon:tryFire() then
       -- firing a bullet here
+      local bullet = Bullet:new(self.x, self.y - 2, -90)
+      table.insert(self.bullets, bullet)
     end
   end
 end
@@ -76,6 +82,9 @@ function Player:update(dt)
   self:movement(dt)
   self:shooting(dt)
   self.weapon:update(dt)
+  for _, bullet in pairs(self.bullets) do
+    bullet:update(dt)
+  end
 end
 
 function Player:checkCollision()

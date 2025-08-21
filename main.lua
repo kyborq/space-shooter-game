@@ -6,9 +6,11 @@ require "lib.anchor"
 require "lib.controller"
 require "lib.timer"
 
+require "utils"
 require "globals"
 require "weapon"
 require "player"
+require "bullet"
 
 WIDTH, HEIGHT = 160, 120
 
@@ -37,9 +39,9 @@ end
 function love.draw()
   camera:push()
 
-  background:draw(0, 0)
+  background:draw()
   player:draw()
-  frame:draw(0, 0)
+  frame:draw()
 
   camera:pop()
 end
