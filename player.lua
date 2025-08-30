@@ -3,13 +3,13 @@ Player = Class()
 function Player:init()
   -- player params
   self.speed = 0
-  self.maxSpeed = 1
-  self.acceleration = 1.5
+  self.maxSpeed = 0.8
+  self.acceleration = 1.25
   self.deceleration = 0.5
 
   -- object params
   self.x = 80
-  self.y = 60
+  self.y = 90
 
   -- internal
   self.vx = 0
@@ -22,7 +22,7 @@ function Player:init()
   self.bullets = {}
 
   -- modules
-  self.weapon = Weapon:new(0.45)
+  self.weapon = Weapon:new(1.05)
 
   -- recoil
   self.recoilTimer = Timer:new()
