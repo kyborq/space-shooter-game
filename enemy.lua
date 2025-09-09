@@ -59,6 +59,16 @@ function Enemy:update(dt)
   end
 end
 
-function Enemy:hit()
+function Enemy:hit(dx, dy, force)
   self.health = self.health - 1
+
+  local len = math.sqrt(dx*dx + dy*dy)
+  if len > 0 then
+    dx = dx / len
+    dy = dy / len
+  end
+
+  local knockbackForce = force or 1.5
+  self.vx = self.vx + dx * knockbackForce
+  self.vy = self.vy + dy * knockbackForce
 end

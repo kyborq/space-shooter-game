@@ -14,6 +14,7 @@ require "player"
 require "bullet"
 require "enemy"
 require "game"
+require "wave"
 
 WIDTH, HEIGHT = 160, 120
 
@@ -66,7 +67,11 @@ function love.update(dt)
   for i, bullet in pairs(player.bullets) do
     for _, enemy in pairs(enemies.objects) do
       if bullet:collidesWithEnemy(enemy) then
-        enemy:hit()
+        local angle = Utils.degtorad(bullet.direction)
+        local dx = math.cos(angle)
+        local dy = math.sin(angle)
+
+        enemy:hit(dx, dy, 2.0)
         table.remove(player.bullets, i)
         break
       end
