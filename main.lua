@@ -62,6 +62,22 @@ end
 function love.update(dt)
   player:update(dt)
   enemies:update(dt)
+
+  for i, bullet in pairs(player.bullets) do
+    for _, enemy in pairs(enemies.objects) do
+      if bullet:collidesWithEnemy(enemy) then
+        enemy:hit()
+        table.remove(player.bullets, i)
+        break
+      end
+    end
+  end
+
+  for i, enemy in pairs(enemies.objects) do
+    if enemy.dead then
+      table.remove(enemies.objects, i)
+    end
+  end
 end
 
 function love.keypressed(key)

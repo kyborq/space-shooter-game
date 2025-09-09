@@ -107,8 +107,13 @@ function Player:update(dt)
   self:movement(dt)
   self:shooting(dt)
   self.weapon:update(dt)
-  for _, bullet in pairs(self.bullets) do
+
+  for i, bullet in pairs(self.bullets) do
     bullet:update(dt)
+
+    if bullet:isOut({x = 0, y = 0, width = WIDTH, height = HEIGHT}) then
+      table.remove(self.bullets, i)
+    end
   end
 end
 

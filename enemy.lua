@@ -14,13 +14,24 @@ function Enemy:init(targetX, targetY)
   self.deceleration = 0.25
 
   self.sprite = Sprite:new("assets/enemy.png", 0.5)
+
+  self.health = 3
+  self.dead = false
 end
 
 function Enemy:draw()
+  if self.dead then
+    return
+  end
+
   self.sprite:draw(self.x, self.y)
 end
 
 function Enemy:update(dt)
+  if self.dead then
+    return
+  end
+
   local dx = self.targetX - self.x
   local dy = self.targetY - self.y
   local dist = math.sqrt(dx^2 + dy^2)
@@ -42,4 +53,12 @@ function Enemy:update(dt)
 
   self.x = self.x + self.vx
   self.y = self.y + self.vy
+
+  if self.health <= 0 then
+    self.dead = true
+  end
+end
+
+function Enemy:hit()
+  self.health = self.health - 1
 end

@@ -41,3 +41,15 @@ function Bullet:isOut(bounds)
   return right < bounds.x or left > bounds.x + bounds.width or
          bottom < bounds.y or top > bounds.y + bounds.height
 end
+
+function Bullet:collidesWithEnemy(enemy)
+  local ex, ey, ew, eh = enemy.sprite:getBounds(enemy.x, enemy.y)
+
+  local closestX = math.max(ex, math.min(self.x, ex + ew))
+  local closestY = math.max(ey, math.min(self.y, ey + eh))
+
+  local dx = self.x - closestX
+  local dy = self.y - closestY
+
+  return (dx * dx + dy * dy) < (self.radius * self.radius)
+end
