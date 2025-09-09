@@ -1,18 +1,8 @@
 Enemy = Class()
 
 function Enemy:init(targetX, targetY)
-  local screenLeft = -32
-  local screenRight = WIDTH + 32
-  local spawnTop = -32
-  local screenCenterX = WIDTH / 2
-
-  if targetX < screenCenterX then
-    self.x = math.random(screenLeft, 0)
-    self.y = math.random(spawnTop, 0)
-  else
-    self.x = math.random(WIDTH, screenRight)
-    self.y = math.random(spawnTop, 0)
-  end
+  self.x = targetX
+  self.y = targetY - 10
 
   self.targetX = targetX
   self.targetY = targetY

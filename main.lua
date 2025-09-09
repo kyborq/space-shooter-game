@@ -13,6 +13,7 @@ require "weapon"
 require "player"
 require "bullet"
 require "enemy"
+require "game"
 
 WIDTH, HEIGHT = 160, 120
 
@@ -41,9 +42,9 @@ function love.load()
   player = Player:new()
 
   enemies = Factory:new(Enemy, {
-    { x = 30, y = 25 },
+    { x = 30, y = 35 },
     { x = 80, y = 50 },
-    { x = 130, y = 25 },
+    { x = 130, y = 35 },
   })
 end
 
