@@ -2,12 +2,17 @@ Factory = Class()
 
 function Factory:init(object, positions)
   self.object = object
-  self.positions = positions
 
   -- misc
   self.objects = {}
 
-  for _, position in pairs(self.positions) do
+  if positions then
+    self:create(positions)
+  end
+end
+
+function Factory:create(positions)
+  for _, position in pairs(positions) do
     local instance = self.object:new(position.x, position.y)
     table.insert(self.objects, instance)
   end

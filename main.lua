@@ -33,7 +33,26 @@ function love.load()
     fire = "space",
   })
 
-  game = Game:new()
+  game = Game:new({
+    {
+      positions = {
+        { x = 30, y = 35 },
+        { x = 80, y = 50 },
+        { x = 130, y = 35 },
+      }
+    },
+    {
+      positions = {
+        { x = 30, y = 35 },
+        { x = 130, y = 35 },
+      }
+    },
+    {
+      positions = {
+        { x = 80, y = 50 },
+      }
+    },
+  })
 end
 
 function love.draw()
