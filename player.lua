@@ -30,6 +30,14 @@ function Player:init()
   self.recoilDuration = 0.02
   self.recoilVx = 0
   self.recoilVy = 0
+
+  -- stats
+  self.xp = 0
+end
+
+function Player:add_XP(amount)
+  print('added xp hehe')
+  self.xp = self.xp + amount
 end
 
 function Player:draw()

@@ -24,6 +24,9 @@ local game = nil
 function love.load()
   love.graphics.setDefaultFilter("nearest", "nearest")
 
+  local font = love.graphics.newImageFont("assets/font.png", G.Chars)
+  love.graphics.setFont(font)
+
   G.Camera = Camera:new(WIDTH, HEIGHT)
   G.Controls = Controller:new({
     up = "w",

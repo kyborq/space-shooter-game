@@ -29,16 +29,25 @@ function Game:update(dt)
     end
   end
 
+  -- handling bullets collision with enemies
   local factory = currentWave and currentWave.factory
   if factory then
-    for i, bullet in pairs(self.player.bullets) do
-      for _, enemy in pairs(factory.objects) do
+    for i = #self.player.bullets, 1, -1 do
+      local bullet = self.player.bullets[i]
+      for _, enemy in ipairs(factory.objects) do
         if bullet:collidesWithEnemy(enemy) then
           local angle = Utils.degtorad(bullet.direction)
           local dx = math.cos(angle)
           local dy = math.sin(angle)
 
           enemy:hit(dx, dy, 2.0)
+
+          -- TODO: fix xp gaining for player
+          -- maybe add event bus to handle this...
+          -- if enemy.dead then
+          --   self.player:add_XP(1)
+          -- end
+
           table.remove(self.player.bullets, i)
           break
         end
@@ -57,4 +66,6 @@ function Game:draw()
 
   self.player:draw()
   self.frame:draw()
+
+  love.graphics.print(string.format("%dXP", self.player.xp), 3, 11)
 end
