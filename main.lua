@@ -18,20 +18,13 @@ require "wave"
 
 WIDTH, HEIGHT = 160, 120
 
-local camera = nil
-local background = nil
-local frame = nil
-local player = nil
-
--- factories
-local enemies = nil
+-- states
+local game = nil
 
 function love.load()
   love.graphics.setDefaultFilter("nearest", "nearest")
 
-  camera = Camera:new(WIDTH, HEIGHT)
-  background = Sprite:new("assets/background.png")
-  frame = Sprite:new("assets/frame.png")
+  G.Camera = Camera:new(WIDTH, HEIGHT)
   G.Controls = Controller:new({
     up = "w",
     down = "s",
@@ -40,49 +33,17 @@ function love.load()
     fire = "space",
   })
 
-  player = Player:new()
-
-  enemies = Factory:new(Enemy, {
-    { x = 30, y = 35 },
-    { x = 80, y = 50 },
-    { x = 130, y = 35 },
-  })
+  game = Game:new()
 end
 
 function love.draw()
-  camera:push()
-
-  background:draw()
-  enemies:draw()
-  player:draw()
-  frame:draw()
-
-  camera:pop()
+  G.Camera:push()
+  game:draw()
+  G.Camera:pop()
 end
 
 function love.update(dt)
-  player:update(dt)
-  enemies:update(dt)
-
-  for i, bullet in pairs(player.bullets) do
-    for _, enemy in pairs(enemies.objects) do
-      if bullet:collidesWithEnemy(enemy) then
-        local angle = Utils.degtorad(bullet.direction)
-        local dx = math.cos(angle)
-        local dy = math.sin(angle)
-
-        enemy:hit(dx, dy, 2.0)
-        table.remove(player.bullets, i)
-        break
-      end
-    end
-  end
-
-  for i, enemy in pairs(enemies.objects) do
-    if enemy.dead then
-      table.remove(enemies.objects, i)
-    end
-  end
+  game:update(dt)
 end
 
 function love.keypressed(key)
