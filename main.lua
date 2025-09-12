@@ -44,7 +44,7 @@ function love.load()
   G.State = State:new()
 
   -- стартуем с интро
-  G.State:switch(Menu:new())
+  G.State:switch(Intro:new())
 
     vhsShader = love.graphics.newShader([[
         extern number time;
@@ -101,7 +101,7 @@ function love.update(dt)
   vhsShader:send("scale", G.Camera:getScale())
   vhsShader:send("screenSize", {WIDTH, HEIGHT})
   vhsShader:send("noiseIntensity", 0.05)
-  vhsShader:send("bulgeStrength", -0.0225)
+  vhsShader:send("bulgeStrength", 0)
 end
 
 function love.keypressed(key)

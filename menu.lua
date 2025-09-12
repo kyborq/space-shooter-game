@@ -4,7 +4,7 @@ function Menu:init()
   self.background = Sprite:new("assets/background.png")
   self.frame = Sprite:new("assets/menu-frame.png")
   self.ship = Sprite:new("assets/player.png")
-  self.shipPanel = Sprite:new("assets/ship-panel.png")
+  self.shipPanel = Sprite:new("assets/menu-ship-frame.png")
 
   -- 1 = MAP, 2 = SHIP
   self.tab = 1
@@ -44,13 +44,14 @@ function Menu:draw()
   end
 
   love.graphics.setColor(1, 1, 1, 1) -- сброс цвета
+  love.graphics.print("<Q   E>", 120, 3)
 
   -- можно тут же отрисовывать контент вкладок
   if self.tab == 1 then
     love.graphics.print("MISSION", 40, 40)
   elseif self.tab == 2 then
     -- love.graphics.print("SHIP", 40, 40)
-    self.shipPanel:draw(111, 13)
+    self.shipPanel:draw(2, 10)
     self.ship:draw(128, 74)
 
     love.graphics.print("LVL-1 XP-0 | 5", 4, 104)
