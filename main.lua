@@ -6,6 +6,7 @@ require "lib.anchor"
 require "lib.controller"
 require "lib.timer"
 require "lib.factory"
+require "lib.signal"
 
 require "utils"
 require "globals"
@@ -35,6 +36,7 @@ function love.load()
     right = "d",
     fire = "space",
   })
+  G.Signals = Signal:new()
 
   game = Game:new({
     {

@@ -15,6 +15,10 @@ function Game:init(waves)
   end
 
   self.currentWave = 1
+
+  G.Signals:connect("enemy_killed", function(enemy)
+    self.player:add_XP(1)
+  end)
 end
 
 function Game:update(dt)

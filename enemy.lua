@@ -71,4 +71,9 @@ function Enemy:hit(dx, dy, force)
   local knockbackForce = force or 1.5
   self.vx = self.vx + dx * knockbackForce
   self.vy = self.vy + dy * knockbackForce
+
+  if self.health <= 0 and not self.dead then
+    self.dead = true
+    G.Signals:emit("enemy_killed", self)
+  end
 end
