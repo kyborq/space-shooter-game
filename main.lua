@@ -7,6 +7,7 @@ require "lib.controller"
 require "lib.timer"
 require "lib.factory"
 require "lib.signal"
+require "lib.state"
 
 require "utils"
 require "globals"
@@ -16,11 +17,10 @@ require "bullet"
 require "enemy"
 require "game"
 require "wave"
+require "intro"
+require "menu"
 
 WIDTH, HEIGHT = 160, 120
-
--- states
-local game = nil
 
 function love.load()
   love.graphics.setDefaultFilter("nearest", "nearest")
@@ -37,39 +37,23 @@ function love.load()
     fire = "space",
   })
   G.Signals = Signal:new()
+  G.State = State:new()
 
-  game = Game:new({
-    {
-      positions = {
-        { x = 30, y = 35 },
-        { x = 80, y = 50 },
-        { x = 130, y = 35 },
-      }
-    },
-    {
-      positions = {
-        { x = 30, y = 35 },
-        { x = 130, y = 35 },
-      }
-    },
-    {
-      positions = {
-        { x = 80, y = 50 },
-      }
-    },
-  })
+  -- стартуем с интро
+  G.State:switch(Intro:new())
 end
 
 function love.draw()
   G.Camera:push()
-  game:draw()
+  G.State:draw()
   G.Camera:pop()
 end
 
 function love.update(dt)
-  game:update(dt)
+  G.State:update(dt)
 end
 
 function love.keypressed(key)
   G.Controls:keyPressed(key)
+  G.State:keypressed(key)
 end

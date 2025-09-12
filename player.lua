@@ -36,7 +36,6 @@ function Player:init()
 end
 
 function Player:add_XP(amount)
-  print('added xp hehe')
   self.xp = self.xp + amount
 end
 

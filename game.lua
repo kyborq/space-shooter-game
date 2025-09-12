@@ -8,10 +8,12 @@ function Game:init(waves)
 
   -- init waves
   self.waves = {}
-  local enemies = Factory:new(Enemy)
-  for _, waveConfig in pairs(waves) do
-    local wave = Wave:new(waveConfig, enemies)
-    table.insert(self.waves, wave)
+  if waves then
+    local enemies = Factory:new(Enemy)
+    for _, waveConfig in pairs(waves) do
+      local wave = Wave:new(waveConfig, enemies)
+      table.insert(self.waves, wave)
+    end
   end
 
   self.currentWave = 1
