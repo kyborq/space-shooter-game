@@ -144,13 +144,13 @@ function SpriteSheet:update(dt)
   end
 end
 
-function SpriteSheet:draw(x, y)
+function SpriteSheet:draw(x, y, frame)
   local offsetX = self.originX * self.frameWidth
   local offsetY = self.originY * self.frameHeight
 
   love.graphics.draw(
     self.image,
-    self.frames[self.currentFrame],
+    self.frames[frame or self.currentFrame],
     x or 0,
     y or 0,
     0,

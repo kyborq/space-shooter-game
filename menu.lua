@@ -5,6 +5,7 @@ function Menu:init()
   self.frame = Sprite:new("assets/menu-frame.png")
   self.ship = Sprite:new("assets/player.png")
   self.shipPanel = Sprite:new("assets/menu-ship-frame.png")
+  self.baseModule = SpriteSheet:new("assets/base-modules.png", 15, 15)
 
   -- 1 = MAP, 2 = SHIP
   self.tab = 1
@@ -52,7 +53,17 @@ function Menu:draw()
   elseif self.tab == 2 then
     -- love.graphics.print("SHIP", 40, 40)
     self.shipPanel:draw(2, 10)
-    self.ship:draw(128, 74)
+    -- self.ship:draw(128, 74)
+
+    for i = 1, 6 do
+      for j = 1, 3 do
+        local gap = 2
+        local size = 15
+        local x = (i - 1) * (size + gap)
+        local y = (j - 1) * (size + gap)
+        self.baseModule:draw(x + 6, y + 48)
+      end
+    end
 
     love.graphics.print("LVL-1 XP-0 | 5", 4, 104)
     love.graphics.print("", 4, 111)
