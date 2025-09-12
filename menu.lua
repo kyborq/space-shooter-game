@@ -3,6 +3,8 @@ Menu = Class()
 function Menu:init()
   self.background = Sprite:new("assets/background.png")
   self.frame = Sprite:new("assets/menu-frame.png")
+  self.ship = Sprite:new("assets/player.png")
+  self.shipPanel = Sprite:new("assets/ship-panel.png")
 
   -- 1 = MAP, 2 = SHIP
   self.tab = 1
@@ -47,12 +49,13 @@ function Menu:draw()
   if self.tab == 1 then
     love.graphics.print("MISSION", 40, 40)
   elseif self.tab == 2 then
-    love.graphics.print("SHIP", 40, 40)
+    -- love.graphics.print("SHIP", 40, 40)
+    self.shipPanel:draw(111, 13)
+    self.ship:draw(128, 74)
+
+    love.graphics.print("LVL-1 XP-0 | 5", 4, 104)
+    love.graphics.print("", 4, 111)
   end
-
-  love.graphics.print("SELECTED MISSION", 4, 104)
-  love.graphics.print("X-100 Y-500", 4, 111)
-
 end
 
 function Menu:keypressed(key)

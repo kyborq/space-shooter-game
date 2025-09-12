@@ -29,6 +29,13 @@ function Camera:getScaleAndOffset()
   return scale, offsetX, offsetY
 end
 
+function Camera:getScale()
+  local actualWidth, actualHeight = love.graphics.getDimensions()
+  local scaleX, scaleY = actualWidth / self.width, actualHeight / self.height
+  local scale = math.min(scaleX, scaleY)
+  return scale
+end
+
 function Camera:getDimensions()
   return self.width, self.height
 end
