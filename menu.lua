@@ -1,30 +1,67 @@
 Menu = Class()
 
 function Menu:init()
-  self.selection = 1 -- 1 = играть, 2 = апгрейды
+  self.background = Sprite:new("assets/background.png")
+  self.frame = Sprite:new("assets/menu-frame.png")
+
+  -- 1 = MAP, 2 = SHIP
+  self.tab = 1
 end
 
 function Menu:update(dt)
-end
+  if G.Controls:isActionPressed("nextTab") then
+    if self.tab < 2 then
+      self.tab = self.tab + 1
+    end
+  end
 
-function Menu:draw()
-  love.graphics.print("== MENU ==", 60, 30)
-
-  local options = { "START", "UPGRADES" }
-  for i, opt in ipairs(options) do
-    local prefix = (i == self.selection) and "> " or "  "
-    love.graphics.print(prefix .. opt, 50, 50 + i * 10)
+  if G.Controls:isActionPressed("prevTab") then
+    if self.tab > 1 then
+      self.tab = self.tab - 1
+    end
   end
 end
 
+function Menu:draw()
+  self.background:draw()
+  self.frame:draw()
+
+  local activeColor = {1, 1, 1, 1}
+  local inactiveColor = {0.5, 0.5, 0.5, 1}
+
+  if self.tab == 1 then
+    love.graphics.setColor(activeColor)
+    love.graphics.print("MAP", 6, 3)
+    love.graphics.setColor(inactiveColor)
+    love.graphics.print("SHIP", 25, 3)
+  else
+    love.graphics.setColor(inactiveColor)
+    love.graphics.print("MAP", 6, 3)
+    love.graphics.setColor(activeColor)
+    love.graphics.print("SHIP", 25, 3)
+  end
+
+  love.graphics.setColor(1, 1, 1, 1) -- сброс цвета
+
+  -- можно тут же отрисовывать контент вкладок
+  if self.tab == 1 then
+    love.graphics.print("MISSION", 40, 40)
+  elseif self.tab == 2 then
+    love.graphics.print("SHIP", 40, 40)
+  end
+
+  love.graphics.print("SELECTED MISSION", 4, 104)
+  love.graphics.print("X-100 Y-500", 4, 111)
+
+end
+
 function Menu:keypressed(key)
-  if key == "up" then
-    self.selection = math.max(1, self.selection - 1)
-  elseif key == "down" then
-    self.selection = math.min(2, self.selection + 1)
+  if key == "left" then
+    self.tab = 1
+  elseif key == "right" then
+    self.tab = 2
   elseif key == "return" or key == "space" then
-    if self.selection == 1 then
-      -- запуск игры с параметрами волн
+    if self.tab == 1 then
       local waves = {
         {
           positions = {
@@ -45,11 +82,9 @@ function Menu:keypressed(key)
           }
         },
       }
-      local game = Game:new(waves)
-      G.State:switch(game)
-    elseif self.selection == 2 then
-      -- пока пусто
-      -- print("Upgrades menu TODO")
+      G.State:switch(Game, waves)
+    elseif self.tab == 2 then
+      print("TODO: Ship upgrades menu")
     end
   end
 end

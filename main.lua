@@ -35,12 +35,14 @@ function love.load()
     left = "a",
     right = "d",
     fire = "space",
+    nextTab = "e",
+    prevTab = "q",
   })
   G.Signals = Signal:new()
   G.State = State:new()
 
   -- стартуем с интро
-  G.State:switch(Intro:new())
+  G.State:switch(Menu:new())
 end
 
 function love.draw()
