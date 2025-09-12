@@ -27,7 +27,7 @@ function Game:update(dt)
   local currentWave = self.waves[self.currentWave]
   if currentWave then
     currentWave:update(dt)
-    if currentWave.completed then
+    if currentWave:isReadyForNext() then
       self.currentWave = self.currentWave + 1
       currentWave.factory.objects = {}
     end
@@ -43,15 +43,7 @@ function Game:update(dt)
           local angle = Utils.degtorad(bullet.direction)
           local dx = math.cos(angle)
           local dy = math.sin(angle)
-
           enemy:hit(dx, dy, 2.0)
-
-          -- TODO: fix xp gaining for player
-          -- maybe add event bus to handle this...
-          -- if enemy.dead then
-          --   self.player:add_XP(1)
-          -- end
-
           table.remove(self.player.bullets, i)
           break
         end

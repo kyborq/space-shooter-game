@@ -5,6 +5,7 @@ function Wave:init(config, factory)
   self.factory = factory
   self.spawned = false
   self.completed = false
+  self.delay = config.delay or 2.0
 end
 
 function Wave:update(dt)
@@ -23,9 +24,16 @@ function Wave:update(dt)
       break
     end
   end
-  if allDead then
+  if allDead and not self.completed then
     self.completed = true
+    self.completedAt = love.timer.getTime()
   end
+end
+
+function Wave:isReadyForNext()
+  if not self.completed then return false end
+  local elapsed = love.timer.getTime() - (self.completedAt or 0)
+  return elapsed >= self.delay
 end
 
 function Wave:draw()
