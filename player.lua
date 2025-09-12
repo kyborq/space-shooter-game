@@ -25,11 +25,11 @@ function Player:init()
   self.weapon = Weapon:new(1.05)
 
   -- recoil
-  self.recoilTimer = Timer:new()
-  self.recoilForce = 0.33
-  self.recoilDuration = 0.02
   self.recoilVx = 0
   self.recoilVy = 0
+  self.recoilForce = 60        -- сила отдачи (чем выше — тем сильнее толчок)
+  self.recoilStiffness = 25    -- упругость пружины
+  self.recoilDamping = 8
 
   -- stats
   self.xp = 0
@@ -79,22 +79,21 @@ function Player:movement(dt)
     end
   end
 
-  self.recoilTimer:update(dt)
-  if not self.recoilTimer:isFinished() then
-    self.x = self.x + self.recoilVx
-    self.y = self.y + self.recoilVy
-
-    local decayFactor = dt / self.recoilDuration
-    self.recoilVx = self.recoilVx * (1 - decayFactor)
-    self.recoilVy = self.recoilVy * (1 - decayFactor)
-  else
-    self.recoilVx, self.recoilVy = 0, 0
-  end
-
   self.x = self.x + self.vx
   self.y = self.y + self.vy
 
+  -- recoil
+  self.x = self.x + self.recoilVx * dt
+  self.y = self.y + self.recoilVy * dt
 
+  local ax = -self.recoilVx * self.recoilStiffness
+  local ay = -self.recoilVy * self.recoilStiffness
+
+  ax = ax - self.recoilVx * self.recoilDamping
+  ay = ay - self.recoilVy * self.recoilDamping
+
+  self.recoilVx = self.recoilVx + ax * dt
+  self.recoilVy = self.recoilVy + ay * dt
 end
 
 function Player:shooting(dt)
@@ -106,7 +105,6 @@ function Player:shooting(dt)
       local angle = math.rad(-90)
       self.recoilVx = self.recoilVx - math.cos(angle) * self.recoilForce
       self.recoilVy = self.recoilVy - math.sin(angle) * self.recoilForce
-      self.recoilTimer:reset(self.recoilDuration)
     end
   end
 end
