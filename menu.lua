@@ -9,6 +9,17 @@ function Menu:init()
 
   -- 1 = MAP, 2 = SHIP
   self.tab = 1
+
+  self.columns = {"firepower","speed","energy","defense","xp","gameplay"}
+
+  self.grid = {}
+  for i, colName in ipairs(self.columns) do
+    self.grid[i] = {}
+    print(colName)
+    for j, mod in ipairs(Modules[colName]) do
+      self.grid[i][j] = mod
+    end
+  end
 end
 
 function Menu:update(dt)
@@ -44,27 +55,39 @@ function Menu:draw()
     love.graphics.print("SHIP", 25, 3)
   end
 
-  love.graphics.setColor(1, 1, 1, 1) -- сброс цвета
+  love.graphics.setColor(1, 1, 1, 1)
   love.graphics.print("<Q   E>", 120, 3)
 
-  -- можно тут же отрисовывать контент вкладок
   if self.tab == 1 then
     love.graphics.print("MISSION", 40, 40)
   elseif self.tab == 2 then
-    -- love.graphics.print("SHIP", 40, 40)
     self.shipPanel:draw(2, 10)
-    -- self.ship:draw(128, 74)
-
     for i = 1, 6 do
       for j = 1, 3 do
-        local gap = 2
-        local size = 15
+        local gap, size = 2, 15
         local x = (i - 1) * (size + gap)
         local y = (j - 1) * (size + gap)
-        self.baseModule:draw(x + 6, y + 48)
+
+        local module = self.grid[i][j]
+        if module then
+          if module.unlocked then
+            local color = {1,1,1,1}
+            if i == 1 then color = {1,0.2,0.2,1}
+            elseif i == 2 then color = {0.3,0.5,1,1}
+            elseif i == 3 then color = {0.2,1,0.4,1}
+            elseif i == 4 then color = {1,1,0.3,1}
+            elseif i == 5 then color = {0.7,0.3,1,1} end
+            love.graphics.setColor(color)
+          else
+            love.graphics.setColor(0.3,0.3,0.3,0.6)
+          end
+          self.baseModule:draw(x+6, y+48, j + 1)
+        end
       end
     end
+    love.graphics.setColor(1,1,1,1)
 
+    -- info about selected module
     love.graphics.print("LVL-1 XP-0 | 5", 4, 104)
     love.graphics.print("", 4, 111)
   end
@@ -76,7 +99,6 @@ function Menu:keypressed(key)
   elseif key == "right" then
     self.tab = 2
   elseif key == "return" or key == "space" then
-    if self.tab == 1 then
       local waves = {
         {
           positions = {
@@ -97,9 +119,6 @@ function Menu:keypressed(key)
           }
         },
       }
-      G.State:switch(Game, waves)
-    elseif self.tab == 2 then
-      print("TODO: Ship upgrades menu")
-    end
+      G.State:switch(Game:new(waves))
   end
 end

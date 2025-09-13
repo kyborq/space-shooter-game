@@ -9,6 +9,7 @@ require "lib.factory"
 require "lib.signal"
 require "lib.state"
 
+require "modules"
 require "utils"
 require "globals"
 require "weapon"
