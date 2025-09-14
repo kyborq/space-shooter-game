@@ -19,6 +19,7 @@ require "enemy"
 require "game"
 require "wave"
 require "intro"
+require "cursor"
 require "menu"
 
 WIDTH, HEIGHT = 160, 120

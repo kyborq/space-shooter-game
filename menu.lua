@@ -1,6 +1,8 @@
 Menu = Class()
 
 function Menu:init()
+  self.shipCursor = Cursor:new()
+  
   self.background = Sprite:new("assets/background.png")
   self.frame = Sprite:new("assets/menu-frame.png")
   self.ship = Sprite:new("assets/player.png")
@@ -34,6 +36,26 @@ function Menu:update(dt)
       self.tab = self.tab - 1
     end
   end
+
+  if self.tab == 2 then
+    if G.Controls:isActionJustPressed("right") then
+      self.shipCursor:setPosition(self.shipCursor.x + 10, self.shipCursor.y)
+    end
+
+    if G.Controls:isActionJustPressed("left") then
+      self.shipCursor:setPosition(self.shipCursor.x - 10, self.shipCursor.y)
+    end
+
+    if G.Controls:isActionJustPressed("up") then
+      self.shipCursor:setPosition(self.shipCursor.x, self.shipCursor.y - 10)
+    end
+
+    if G.Controls:isActionJustPressed("down") then
+      self.shipCursor:setPosition(self.shipCursor.x, self.shipCursor.y + 10)
+    end
+  end
+
+  self.shipCursor:update(dt)
 end
 
 function Menu:draw()
@@ -90,6 +112,8 @@ function Menu:draw()
     -- info about selected module
     love.graphics.print("LVL-1 XP-0 | 5", 4, 104)
     love.graphics.print("", 4, 111)
+
+    self.shipCursor:draw()
   end
 end
 
