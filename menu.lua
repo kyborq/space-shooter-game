@@ -22,6 +22,16 @@ function Menu:init()
       self.grid[i][j] = mod
     end
   end
+
+  self.cursorCol = 1
+  self.cursorRow = 1
+end
+
+function Menu:updateCursorPosition()
+  local gap, size = 2, 15
+  local x = (self.cursorCol - 1) * (size + gap) + 6
+  local y = (self.cursorRow - 1) * (size + gap) + 48
+  self.shipCursor:setPosition(x - 0.5, y - 0.5)
 end
 
 function Menu:update(dt)
@@ -39,21 +49,26 @@ function Menu:update(dt)
 
   if self.tab == 2 then
     if G.Controls:isActionJustPressed("right") then
-      self.shipCursor:setPosition(self.shipCursor.x + 10, self.shipCursor.y)
+      self.cursorCol = math.min(self.cursorCol + 1, #self.columns)
+      self:updateCursorPosition()
     end
 
     if G.Controls:isActionJustPressed("left") then
-      self.shipCursor:setPosition(self.shipCursor.x - 10, self.shipCursor.y)
+      self.cursorCol = math.max(self.cursorCol - 1, 1)
+      self:updateCursorPosition()
     end
 
     if G.Controls:isActionJustPressed("up") then
-      self.shipCursor:setPosition(self.shipCursor.x, self.shipCursor.y - 10)
+      self.cursorRow = math.max(self.cursorRow - 1, 1)
+      self:updateCursorPosition()
     end
 
     if G.Controls:isActionJustPressed("down") then
-      self.shipCursor:setPosition(self.shipCursor.x, self.shipCursor.y + 10)
+      self.cursorRow = math.min(self.cursorRow + 1, #self.grid[self.cursorCol])
+      self:updateCursorPosition()
     end
   end
+
 
   self.shipCursor:update(dt)
 end
@@ -109,9 +124,12 @@ function Menu:draw()
     end
     love.graphics.setColor(1,1,1,1)
 
-    -- info about selected module
-    love.graphics.print("LVL-1 XP-0 | 5", 4, 104)
-    love.graphics.print("", 4, 111)
+    local selectedModule = self.grid[self.cursorCol][self.cursorRow]
+    if selectedModule then
+        love.graphics.print(selectedModule.name, 4, 104)
+        local unlockedText = selectedModule.unlocked and "UNLOCKED" or "LOCKED"
+        love.graphics.print(unlockedText, 4, 111)
+    end
 
     self.shipCursor:draw()
   end

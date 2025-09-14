@@ -7,7 +7,7 @@ function Cursor:init()
   self.targetX = 0
   self.targetY = 0
 
-  self.sprite = Sprite:new("assets/cursor.png", 0.5)
+  self.sprite = Sprite:new("assets/cursor.png")
 end
 
 function Cursor:setPosition(x, y)
@@ -16,8 +16,8 @@ function Cursor:setPosition(x, y)
 end
 
 function Cursor:update(dt)
-  local speed = 10  -- увеличь, чтобы курсор двигался быстрее
-  local t = math.min(dt * speed, 1)  -- чтобы t не превышало 1
+  local speed = 10
+  local t = math.min(dt * speed, 1)
   self.x = Utils.lerp(self.x, self.targetX, t)
   self.y = Utils.lerp(self.y, self.targetY, t)
 end
