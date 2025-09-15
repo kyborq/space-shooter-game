@@ -8,6 +8,7 @@ function Menu:init()
   self.ship = Sprite:new("assets/player.png")
   self.shipPanel = Sprite:new("assets/menu-ship-frame.png")
   self.baseModule = SpriteSheet:new("assets/base-modules.png", 15, 15)
+  self.selectedHighlight = Sprite:new("assets/selected-highlight.png")
 
   -- 1 = MAP, 2 = SHIP
   self.tab = 1
@@ -33,6 +34,8 @@ function Menu:init()
   self.cursorCol = 1
   self.cursorRow = 1
   self.cursorOnEquipped = false
+
+  self:updateCursorPosition()
 end
 
 function Menu:updateCursorPosition()
@@ -163,6 +166,11 @@ function Menu:draw()
 
         local module = self.grid[i][j]
         if module then
+          love.graphics.setColor(1, 1, 1, 1)
+          if self.equipped[i] == module then
+            self.selectedHighlight:draw(x + 7, y + 49)
+          end
+          
           if module.unlocked then
             local color = {1,1,1,1}
             if i == 1 then color = {1,0.2,0.2,1}

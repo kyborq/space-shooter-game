@@ -100,6 +100,8 @@ end
 
 function love.update(dt)
   G.State:update(dt)
+  G.Controls:reset()
+
   vhsShader:send("time", love.timer.getTime())
   vhsShader:send("scale", G.Camera:getScale())
   vhsShader:send("screenSize", {WIDTH, HEIGHT})
