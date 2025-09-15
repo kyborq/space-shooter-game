@@ -33,6 +33,8 @@ function Player:init()
 
   -- stats
   self.xp = 0
+
+  self.equippedModules = {}
 end
 
 function Player:add_XP(amount)

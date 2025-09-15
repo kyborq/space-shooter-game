@@ -41,6 +41,7 @@ function love.load()
     fire = "space",
     nextTab = "e",
     prevTab = "q",
+    select = "f"
   })
   G.Signals = Signal:new()
   G.State = State:new()

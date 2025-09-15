@@ -23,15 +23,30 @@ function Menu:init()
     end
   end
 
+  -- equipped grid
+  self.equipped = {}
+  for i = 1, 6 do
+    self.equipped[i] = nil
+  end
+
+  -- menu ship upgrade tab cursor
   self.cursorCol = 1
   self.cursorRow = 1
+  self.cursorOnEquipped = false
 end
 
 function Menu:updateCursorPosition()
   local gap, size = 2, 15
-  local x = (self.cursorCol - 1) * (size + gap) + 6
-  local y = (self.cursorRow - 1) * (size + gap) + 48
-  self.shipCursor:setPosition(x - 0.5, y - 0.5)
+
+  if self.cursorOnEquipped then
+    local x = (self.cursorCol - 1) * (size + gap) + 6
+    local y = 14
+    self.shipCursor:setPosition(x - 0.5, y - 0.5)
+  else
+    local x = (self.cursorCol - 1) * (size + gap) + 6
+    local y = (self.cursorRow - 1) * (size + gap) + 48
+    self.shipCursor:setPosition(x - 0.5, y - 0.5)
+  end
 end
 
 function Menu:update(dt)
@@ -59,16 +74,37 @@ function Menu:update(dt)
     end
 
     if G.Controls:isActionJustPressed("up") then
-      self.cursorRow = math.max(self.cursorRow - 1, 1)
+      if not self.cursorOnEquipped then
+        if self.cursorRow > 1 then
+          self.cursorRow = self.cursorRow - 1
+        else
+          self.cursorOnEquipped = true
+        end
+      end
       self:updateCursorPosition()
     end
 
     if G.Controls:isActionJustPressed("down") then
-      self.cursorRow = math.min(self.cursorRow + 1, #self.grid[self.cursorCol])
+      if self.cursorOnEquipped then
+        self.cursorOnEquipped = false
+        self.cursorRow = 1
+      else
+        self.cursorRow = math.min(self.cursorRow + 1, #self.grid[self.cursorCol])
+      end
       self:updateCursorPosition()
     end
-  end
 
+    if G.Controls:isActionJustPressed("select") then
+      if not self.cursorOnEquipped then
+        local module = self.grid[self.cursorCol][self.cursorRow]
+        if module and module.unlocked then
+          self.equipped[self.cursorCol] = module
+        end
+      else
+        self.equipped[self.cursorCol] = nil
+      end
+    end
+  end
 
   self.shipCursor:update(dt)
 end
@@ -99,6 +135,26 @@ function Menu:draw()
     love.graphics.print("MISSION", 40, 40)
   elseif self.tab == 2 then
     self.shipPanel:draw(2, 10)
+
+    -- draw equipped row grid
+    for i = 1, 6 do
+      local gap, size = 2, 15
+      local x = (i - 1) * (size + gap)
+      local y = 14
+      local module = self.equipped[i]
+      if module then
+        local color = {1,1,1,1}
+        if i == 1 then color = {1,0.2,0.2,1}
+        elseif i == 2 then color = {0.3,0.5,1,1}
+        elseif i == 3 then color = {0.2,1,0.4,1}
+        elseif i == 4 then color = {1,1,0.3,1}
+        elseif i == 5 then color = {0.7,0.3,1,1} end
+        love.graphics.setColor(color)
+        self.baseModule:draw(x+6, y, module.type + 1)
+      end
+    end
+    
+    -- draw modules grid
     for i = 1, 6 do
       for j = 1, 3 do
         local gap, size = 2, 15
@@ -118,17 +174,23 @@ function Menu:draw()
           else
             love.graphics.setColor(0.3,0.3,0.3,0.6)
           end
-          self.baseModule:draw(x+6, y+48, j + 1)
+          self.baseModule:draw(x+6, y+48, module.type + 1)
         end
       end
     end
     love.graphics.setColor(1,1,1,1)
 
-    local selectedModule = self.grid[self.cursorCol][self.cursorRow]
-    if selectedModule then
-        love.graphics.print(selectedModule.name, 4, 104)
-        local unlockedText = selectedModule.unlocked and "UNLOCKED" or "LOCKED"
-        love.graphics.print(unlockedText, 4, 111)
+    local selectedModule
+    if self.cursorOnEquipped then
+      selectedModule = self.equipped[self.cursorCol]
+    else
+      selectedModule = self.grid[self.cursorCol][self.cursorRow]
+    end
+
+    if selectedModule and selectedModule.unlocked then
+      love.graphics.print(selectedModule.name, 4, 104)
+      local unlockedText = selectedModule.desc
+      love.graphics.print(unlockedText, 4, 111)
     end
 
     self.shipCursor:draw()
@@ -136,31 +198,31 @@ function Menu:draw()
 end
 
 function Menu:keypressed(key)
-  if key == "left" then
-    self.tab = 1
-  elseif key == "right" then
-    self.tab = 2
-  elseif key == "return" or key == "space" then
-      local waves = {
-        {
-          positions = {
-            { x = 30, y = 35 },
-            { x = 80, y = 50 },
-            { x = 130, y = 35 },
-          }
-        },
-        {
-          positions = {
-            { x = 30, y = 35 },
-            { x = 130, y = 35 },
-          }
-        },
-        {
-          positions = {
-            { x = 80, y = 50 },
-          }
-        },
-      }
-      G.State:switch(Game:new(waves))
-  end
+  -- if key == "left" then
+  --   self.tab = 1
+  -- elseif key == "right" then
+  --   self.tab = 2
+  -- elseif key == "return" or key == "space" then
+  --     local waves = {
+  --       {
+  --         positions = {
+  --           { x = 30, y = 35 },
+  --           { x = 80, y = 50 },
+  --           { x = 130, y = 35 },
+  --         }
+  --       },
+  --       {
+  --         positions = {
+  --           { x = 30, y = 35 },
+  --           { x = 130, y = 35 },
+  --         }
+  --       },
+  --       {
+  --         positions = {
+  --           { x = 80, y = 50 },
+  --         }
+  --       },
+  --     }
+  --     G.State:switch(Game:new(waves))
+  -- end
 end
