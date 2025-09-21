@@ -9,6 +9,11 @@ function Menu:init()
   self.shipPanel = Sprite:new("assets/menu-ship-frame.png")
   self.baseModule = SpriteSheet:new("assets/base-modules.png", 15, 15)
   self.selectedHighlight = Sprite:new("assets/selected-highlight.png")
+  self.systemSprite = Sprite:new("assets/system.png", 0.5)
+  
+  -- Генерируем 10 игровых систем (уровней) для карты
+  self.gameSystems = System.generateSystems(10, 160, 120, 20, 20)
+  self.systemConnections = System.generateClusteredConnections(self.gameSystems, 1, 35)
 
   -- 1 = MAP, 2 = SHIP
   self.tab = 1
@@ -135,7 +140,23 @@ function Menu:draw()
   love.graphics.print("<Q   E>", 120, 3)
 
   if self.tab == 1 then
-    love.graphics.print("MISSION", 40, 40)
+    -- Рисуем соединения между системами
+    love.graphics.setColor(0.3, 0.3, 0.3, 0.8)
+    for _, conn in ipairs(self.systemConnections) do
+      local a = self.gameSystems[conn.start]
+      local b = self.gameSystems[conn.endd]
+      love.graphics.line(a.x, a.y, b.x, b.y)
+    end
+    
+    -- Рисуем системы (игровые уровни)
+    love.graphics.setColor(1, 1, 1, 1)
+    for _, system in ipairs(self.gameSystems) do
+      -- Рисуем систему как спрайт
+      self.systemSprite:draw(system.x - 3, system.y - 3)
+      -- Рисуем название системы
+      -- love.graphics.print(system.name, system.x + 6, system.y - 3)
+    end
+
   elseif self.tab == 2 then
     self.shipPanel:draw(2, 10)
 

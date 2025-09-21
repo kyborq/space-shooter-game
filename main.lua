@@ -20,6 +20,8 @@ require "game"
 require "wave"
 require "intro"
 require "cursor"
+require "system"
+require "system_manager"
 require "menu"
 
 WIDTH, HEIGHT = 160, 120
