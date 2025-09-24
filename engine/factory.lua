@@ -18,6 +18,12 @@ function Factory:create(positions)
   end
 end
 
+function Factory:createSingle(x, y, params)
+  local instance = self.object:new(x, y, params)
+  table.insert(self.objects, instance)
+  return instance
+end
+
 function Factory:update(dt)
   for _, object in pairs(self.objects) do
     object:update(dt)

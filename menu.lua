@@ -26,6 +26,14 @@ function Menu:init()
   -- Инициализируем доступность систем
   self:updateSystemAccessibility()
   
+  -- Убеждаемся, что игрок существует
+  if not G.Player then
+    G.Player = Player:new()
+  end
+  
+  -- Применяем экипированные модули к игроку
+  G.Player:setEquippedModules(self.equipped)
+  
   -- Строим граф соединений
   self:buildSystemGraph()
   
@@ -169,9 +177,13 @@ function Menu:update(dt)
         local module = self.grid[self.cursorCol][self.cursorRow]
         if module and module.unlocked then
           self.equipped[self.cursorCol] = module
+          -- Обновляем модули игрока
+          G.Player:setEquippedModules(self.equipped)
         end
       else
         self.equipped[self.cursorCol] = nil
+        -- Обновляем модули игрока
+        G.Player:setEquippedModules(self.equipped)
       end
     end
   end
@@ -252,12 +264,71 @@ end
 
 -- Обработка выбора системы
 function Menu:handleSystemSelection()
-  -- Здесь можно добавить логику выбора системы
-  -- Например, переход к игре с выбранной системой
   if self.selectedSystem and self.selectedSystem.isAccessible then
     print("Starting mission in system: " .. self.selectedSystem.name)
-    -- TODO: Переход к игре с настройками выбранной системы
+    
+    -- Генерируем волны для выбранной системы
+    local waves = self:generateWavesForSystem(self.selectedSystem)
+    
+    -- Переходим к игровому экрану
+    G.State:switch(Game:new(waves))
   end
+end
+
+-- Генерация волн для системы
+function Menu:generateWavesForSystem(system)
+  local waves = {}
+  
+  for i, waveConfig in ipairs(system.waves) do
+    local wave = {
+      positions = self:generateEnemyPositions(waveConfig.enemyCount),
+      enemyCount = waveConfig.enemyCount,
+      enemySpeed = waveConfig.enemySpeed,
+      enemyHealth = waveConfig.enemyHealth,
+      spawnDelay = waveConfig.spawnDelay,
+      delay = waveConfig.waveDelay,
+      behavior = self:getRandomBehavior() -- случайное поведение для волны
+    }
+    table.insert(waves, wave)
+  end
+  
+  -- Добавляем босса, если есть
+  if system.hasBoss then
+    local bossWave = {
+      positions = {{x = 80, y = 20}}, -- босс появляется сверху
+      enemyCount = 1,
+      enemySpeed = 0.3,
+      enemyHealth = 10,
+      spawnDelay = 0,
+      delay = 2,
+      behavior = "boss",
+      isBoss = true
+    }
+    table.insert(waves, bossWave)
+  end
+  
+  return waves
+end
+
+-- Генерация позиций для врагов
+function Menu:generateEnemyPositions(count)
+  local positions = {}
+  local screenWidth = 160
+  local screenHeight = 120
+  
+  for i = 1, count do
+    local x = math.random(10, screenWidth - 10)
+    local y = math.random(10, 40) -- враги появляются в верхней части экрана
+    table.insert(positions, {x = x, y = y})
+  end
+  
+  return positions
+end
+
+-- Получение случайного поведения для врагов
+function Menu:getRandomBehavior()
+  local behaviors = {"straight", "zigzag", "circle", "aggressive"}
+  return behaviors[math.random(#behaviors)]
 end
 
 -- Выбор системы по координатам (для будущего использования с мышью)
@@ -352,6 +423,15 @@ function Menu:draw()
       love.graphics.print("Boss: " .. (info.hasBoss and "Yes" or "No"), 5, 156)
       love.graphics.print("Required XP: " .. info.requiredXP, 5, 164)
       love.graphics.print("Status: " .. (info.isCompleted and "Completed" or (info.isAccessible and "Accessible" or "Locked")), 5, 172)
+      
+      -- Показываем типы волн
+      if #self.selectedSystem.waves > 0 then
+        local waveTypes = {}
+        for _, wave in ipairs(self.selectedSystem.waves) do
+          table.insert(waveTypes, wave.waveType or "unknown")
+        end
+        love.graphics.print("Wave types: " .. table.concat(waveTypes, ", "), 5, 180)
+      end
     else
       love.graphics.setColor(1, 1, 1, 1)
       love.graphics.print("No system selected", 5, 116)

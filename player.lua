@@ -33,8 +33,13 @@ function Player:init()
 
   -- stats
   self.xp = 0
+  self.health = 100
+  self.maxHealth = 100
 
   self.equippedModules = {}
+  
+  -- Модули влияют на характеристики
+  self:updateModuleStats()
 end
 
 function Player:add_XP(amount)
@@ -123,8 +128,24 @@ end
 function Player:shooting(dt)
   if G.Controls:isActionPressed("fire") then
     if self.weapon:tryFire() then
+      -- Обычная стрельба
       local bullet = Bullet:new(self.x, self.y - 6, -90)
       table.insert(self.bullets, bullet)
+
+      -- Проверяем модули стрельбы
+      for _, module in ipairs(self.equippedModules) do
+        if module and module.name == "DOUBLESHOT" then
+          -- Двойной выстрел
+          local bullet2 = Bullet:new(self.x + 4, self.y - 6, -90)
+          table.insert(self.bullets, bullet2)
+        elseif module and module.name == "BURST" then
+          -- Залп из 3 пуль
+          local bullet2 = Bullet:new(self.x - 2, self.y - 6, -90)
+          local bullet3 = Bullet:new(self.x + 2, self.y - 6, -90)
+          table.insert(self.bullets, bullet2)
+          table.insert(self.bullets, bullet3)
+        end
+      end
 
       local angle = math.rad(-90)
       self.recoilVx = self.recoilVx - math.cos(angle) * self.recoilForce
@@ -133,10 +154,126 @@ function Player:shooting(dt)
   end
 end
 
+
+-- Получение урона
+function Player:takeDamage(damage)
+  self.health = self.health - damage
+  if self.health <= 0 then
+    self.health = 0
+    -- TODO: Обработка смерти игрока
+    print("Player died!")
+  end
+end
+
+-- Лечение
+function Player:heal(amount)
+  self.health = math.min(self.health + amount, self.maxHealth)
+end
+
+-- Получение здоровья
+function Player:getHealth()
+  return self.health
+end
+
+-- Получение максимального здоровья
+function Player:getMaxHealth()
+  return self.maxHealth
+end
+
+-- Проверка, жив ли игрок
+function Player:isAlive()
+  return self.health > 0
+end
+
+-- Установка экипированных модулей
+function Player:setEquippedModules(modules)
+  self.equippedModules = modules or {}
+  self:updateModuleStats()
+end
+
+-- Обновление характеристик на основе модулей
+function Player:updateModuleStats()
+  -- Сбрасываем базовые характеристики
+  self.maxSpeed = 0.8
+  self.acceleration = 1.25
+  self.deceleration = 0.5
+  self.maxHealth = 100
+  self.weapon.fireRate = 1.05
+  
+  -- Применяем эффекты модулей
+  for _, module in ipairs(self.equippedModules) do
+    if module then
+      self:applyModuleEffect(module)
+    end
+  end
+  
+  -- Восстанавливаем здоровье до максимума при изменении модулей
+  if self.health > self.maxHealth then
+    self.health = self.maxHealth
+  end
+end
+
+-- Применение эффекта модуля
+function Player:applyModuleEffect(module)
+  if not module then return end
+  
+  if module.name == "SPEEDSTER" then
+    self.maxSpeed = self.maxSpeed * 1.5
+  elseif module.name == "ACCELERATOR" then
+    self.acceleration = self.acceleration * 1.8
+  elseif module.name == "DASH" then
+    self.maxSpeed = self.maxSpeed * 1.3
+    self.acceleration = self.acceleration * 1.5
+  elseif module.name == "RELOAD" then
+    self.weapon.fireRate = self.weapon.fireRate * 1.5
+  elseif module.name == "BURST" then
+    self.weapon.fireRate = self.weapon.fireRate * 1.2
+  elseif module.name == "INFINITE AMMO" then
+    self.weapon.fireRate = self.weapon.fireRate * 2.0
+  elseif module.name == "SHIELD" then
+    self.maxHealth = self.maxHealth + 50
+  elseif module.name == "MIRROR SHIELD" then
+    self.maxHealth = self.maxHealth + 30
+  elseif module.name == "REGENERATE" then
+    self.maxHealth = self.maxHealth + 25
+  elseif module.name == "TORTOISER" then
+    self.maxSpeed = self.maxSpeed * 0.7
+    self.acceleration = self.acceleration * 0.8
+  end
+end
+
+-- Получение урона с учетом модулей
+function Player:takeDamage(damage)
+  local actualDamage = damage
+  
+  -- Проверяем модули защиты
+  for _, module in ipairs(self.equippedModules) do
+    if module and module.name == "SHIELD" then
+      actualDamage = actualDamage * 0.7 -- снижаем урон на 30%
+    elseif module and module.name == "MIRROR SHIELD" then
+      actualDamage = actualDamage * 0.8 -- снижаем урон на 20%
+    end
+  end
+  
+  self.health = self.health - actualDamage
+  if self.health <= 0 then
+    self.health = 0
+    print("Player died!")
+  end
+end
+
+-- Обновление с учетом модулей
 function Player:update(dt)
   self:movement(dt)
   self:shooting(dt)
   self.weapon:update(dt)
+
+  -- Регенерация здоровья
+  for _, module in ipairs(self.equippedModules) do
+    if module and module.name == "REGENERATE" and self.health < self.maxHealth then
+      self.health = math.min(self.health + dt * 5, self.maxHealth) -- 5 HP в секунду
+    end
+  end
 
   for i, bullet in pairs(self.bullets) do
     bullet:update(dt)

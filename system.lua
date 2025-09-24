@@ -48,30 +48,96 @@ end
 
 -- Генерация конфигурации системы
 function System:generateSystemConfig()
-  -- Количество волн (от 2 до 4)
-  local waveCount = math.random(2, 4)
+  -- Определяем уровень системы на основе позиции (чем дальше от начала, тем сложнее)
+  local systemIndex = self:getSystemIndex()
+  local difficulty = math.min(systemIndex / 10, 1.0) -- от 0 до 1
   
-  -- Генерируем волны
+  -- Количество волн увеличивается с уровнем
+  local waveCount = math.floor(2 + difficulty * 3) -- от 2 до 5 волн
+  
+  -- Генерируем уникальные волны для каждого уровня
   for i = 1, waveCount do
-    local wave = {
-      enemyCount = math.random(3, 8), -- количество врагов в волне
-      enemySpeed = math.random(0.3, 0.8), -- скорость врагов
-      enemyHealth = math.random(1, 3), -- здоровье врагов
-      spawnDelay = math.random(0.5, 1.5), -- задержка между появлениями врагов
-      waveDelay = math.random(1, 3) -- задержка между волнами
-    }
+    local wave = self:generateWaveConfig(i, waveCount, difficulty)
     table.insert(self.waves, wave)
   end
   
-  -- Случайно определяем, есть ли босс (30% шанс)
-  self.hasBoss = math.random() < 0.3
+  -- Босс появляется в системах с высоким уровнем
+  self.hasBoss = difficulty > 0.6 and math.random() < (difficulty * 0.8)
   
-  -- Требуемый опыт зависит от сложности системы
-  local baseXP = waveCount * 50
-  if self.hasBoss then
-    baseXP = baseXP + 100
+  -- Требуемый опыт зависит от уровня системы
+  self.requiredXP = math.floor(50 + systemIndex * 25 + difficulty * 100)
+end
+
+-- Получение индекса системы (нужно будет передавать из меню)
+function System:getSystemIndex()
+  return self.systemIndex or 1
+end
+
+-- Установка индекса системы
+function System:setSystemIndex(index)
+  self.systemIndex = index
+end
+
+-- Генерация конфигурации волны
+function System:generateWaveConfig(waveNumber, totalWaves, difficulty)
+  local waveTypes = {
+    "scout",      -- разведчики - быстрые, слабые
+    "fighter",    -- истребители - средние
+    "bomber",     -- бомбардировщики - медленные, сильные
+    "interceptor", -- перехватчики - агрессивные
+    "swarm"       -- рой - много слабых
+  }
+  
+  local waveType = waveTypes[math.min(waveNumber, #waveTypes)]
+  
+  local config = {
+    waveType = waveType,
+    waveNumber = waveNumber,
+    difficulty = difficulty
+  }
+  
+  if waveType == "scout" then
+    config.enemyCount = math.floor(4 + difficulty * 6)
+    config.enemySpeed = 0.6 + difficulty * 0.4
+    config.enemyHealth = 1
+    config.spawnDelay = 0.3 + difficulty * 0.2
+    config.waveDelay = 1.5
+    config.behavior = "zigzag"
+    
+  elseif waveType == "fighter" then
+    config.enemyCount = math.floor(3 + difficulty * 4)
+    config.enemySpeed = 0.4 + difficulty * 0.3
+    config.enemyHealth = 2 + math.floor(difficulty * 2)
+    config.spawnDelay = 0.5 + difficulty * 0.3
+    config.waveDelay = 2.0
+    config.behavior = "straight"
+    
+  elseif waveType == "bomber" then
+    config.enemyCount = math.floor(2 + difficulty * 3)
+    config.enemySpeed = 0.2 + difficulty * 0.2
+    config.enemyHealth = 3 + math.floor(difficulty * 3)
+    config.spawnDelay = 1.0 + difficulty * 0.5
+    config.waveDelay = 2.5
+    config.behavior = "circle"
+    
+  elseif waveType == "interceptor" then
+    config.enemyCount = math.floor(3 + difficulty * 3)
+    config.enemySpeed = 0.5 + difficulty * 0.4
+    config.enemyHealth = 2 + math.floor(difficulty * 2)
+    config.spawnDelay = 0.4 + difficulty * 0.2
+    config.waveDelay = 1.8
+    config.behavior = "aggressive"
+    
+  elseif waveType == "swarm" then
+    config.enemyCount = math.floor(6 + difficulty * 8)
+    config.enemySpeed = 0.3 + difficulty * 0.3
+    config.enemyHealth = 1
+    config.spawnDelay = 0.2 + difficulty * 0.1
+    config.waveDelay = 1.0
+    config.behavior = "straight"
   end
-  self.requiredXP = baseXP + math.random(0, 50)
+  
+  return config
 end
 
 -- Проверка доступности системы
@@ -108,6 +174,8 @@ function System.generateSystems(count, width, height, padding, minDistance)
     
     local newSystem = System:new(x, y)
     if newSystem:isFarEnough(systems, minDistance) then
+      -- Устанавливаем индекс системы для правильной генерации конфигурации
+      newSystem:setSystemIndex(#systems + 1)
       table.insert(systems, newSystem)
     end
     attempts = attempts + 1

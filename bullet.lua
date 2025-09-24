@@ -33,13 +33,11 @@ function Bullet:draw()
 end
 
 function Bullet:isOut(bounds)
-  local left = self.x - self.image.width
-  local right = self.x + self.image.width
-  local top = self.y - self.image.height
-  local bottom = self.y + self.image.height
-
-  return right < bounds.x or left > bounds.x + bounds.width or
-         bottom < bounds.y or top > bounds.y + bounds.height
+  -- Используем радиус пули для более точной проверки
+  local radius = self.radius or 2
+  
+  return self.x + radius < bounds.x or self.x - radius > bounds.x + bounds.width or
+         self.y + radius < bounds.y or self.y - radius > bounds.y + bounds.height
 end
 
 function Bullet:collidesWithEnemy(enemy)
