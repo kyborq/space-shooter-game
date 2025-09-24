@@ -41,6 +41,29 @@ function Player:add_XP(amount)
   self.xp = self.xp + amount
 end
 
+-- Получить текущий опыт
+function Player:getXP()
+  return self.xp
+end
+
+-- Проверить, достаточно ли опыта для системы
+function Player:canAccessSystem(requiredXP)
+  return self.xp >= requiredXP
+end
+
+-- Получить уровень игрока (каждые 100 XP = 1 уровень)
+function Player:getLevel()
+  return math.floor(self.xp / 100) + 1
+end
+
+-- Получить прогресс до следующего уровня
+function Player:getLevelProgress()
+  local currentLevelXP = (self:getLevel() - 1) * 100
+  local nextLevelXP = self:getLevel() * 100
+  local progress = (self.xp - currentLevelXP) / (nextLevelXP - currentLevelXP)
+  return math.min(progress, 1)
+end
+
 function Player:draw()
   for _, bullet in pairs(self.bullets) do
     bullet:draw()

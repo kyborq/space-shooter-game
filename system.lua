@@ -16,11 +16,21 @@ function System:init(x, y, name)
   self.x = x or 0
   self.y = y or 0
   self.name = name or generateSystemName()
-  self.connections = {}
+  self.connections = {} -- соединения с другими системами (индексы)
+  
+  -- Настройки системы
+  self.waves = {} -- массив волн врагов
+  self.hasBoss = false -- есть ли босс-файт
+  self.requiredXP = 0 -- требуемый опыт для доступа
+  self.isCompleted = false -- пройдена ли система
+  self.isAccessible = false -- доступна ли система для прыжка
+  
+  -- Генерируем случайные настройки для системы
+  self:generateSystemConfig()
 end
 
-function System:addConnection(otherSystem)
-  table.insert(self.connections, otherSystem)
+function System:addConnection(otherSystemIndex)
+  table.insert(self.connections, otherSystemIndex)
 end
 
 function System:distanceTo(otherSystem)
@@ -34,6 +44,57 @@ function System:isFarEnough(systems, minDistance)
     end
   end
   return true
+end
+
+-- Генерация конфигурации системы
+function System:generateSystemConfig()
+  -- Количество волн (от 2 до 4)
+  local waveCount = math.random(2, 4)
+  
+  -- Генерируем волны
+  for i = 1, waveCount do
+    local wave = {
+      enemyCount = math.random(3, 8), -- количество врагов в волне
+      enemySpeed = math.random(0.3, 0.8), -- скорость врагов
+      enemyHealth = math.random(1, 3), -- здоровье врагов
+      spawnDelay = math.random(0.5, 1.5), -- задержка между появлениями врагов
+      waveDelay = math.random(1, 3) -- задержка между волнами
+    }
+    table.insert(self.waves, wave)
+  end
+  
+  -- Случайно определяем, есть ли босс (30% шанс)
+  self.hasBoss = math.random() < 0.3
+  
+  -- Требуемый опыт зависит от сложности системы
+  local baseXP = waveCount * 50
+  if self.hasBoss then
+    baseXP = baseXP + 100
+  end
+  self.requiredXP = baseXP + math.random(0, 50)
+end
+
+-- Проверка доступности системы
+function System:checkAccessibility(playerXP)
+  self.isAccessible = playerXP >= self.requiredXP
+  return self.isAccessible
+end
+
+-- Отметить систему как пройденную
+function System:markCompleted()
+  self.isCompleted = true
+end
+
+-- Получить информацию о системе
+function System:getInfo()
+  return {
+    name = self.name,
+    waveCount = #self.waves,
+    hasBoss = self.hasBoss,
+    requiredXP = self.requiredXP,
+    isCompleted = self.isCompleted,
+    isAccessible = self.isAccessible
+  }
 end
 
 function System.generateSystems(count, width, height, padding, minDistance)

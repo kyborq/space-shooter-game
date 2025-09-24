@@ -47,6 +47,9 @@ function love.load()
   })
   G.Signals = Signal:new()
   G.State = State:new()
+  
+  -- Создаем глобального игрока
+  G.Player = Player:new()
 
   -- стартуем с интро
   G.State:switch(Intro:new())
